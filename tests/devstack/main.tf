@@ -5,8 +5,8 @@ terraform {
 module "openstack" {
   source = "../../openstack"
 
-  cluster_name = "wizard"
-  domain       = "foufounes.calculquebec.ca"
+  cluster_name = "foufounes"
+  domain       = "calculquebec.cloud"
   image        = "CentOS-7-x86_64-GenericCloud-1907"
   nb_users     = 10
 
@@ -49,4 +49,18 @@ output "guest_passwd" {
 
 output "public_ip" {
   value = module.openstack.ip
+}
+
+module "dns" {
+  source           = "git::https://github.com/ComputeCanada/magic_castle.git//dns/cloudflare"
+  email            = "simon.guilbault@calculquebec.ca"
+  name             = module.openstack.cluster_name
+  domain           = module.openstack.domain
+  public_ip        = module.openstack.ip
+  rsa_public_key   = module.openstack.rsa_public_key
+  sudoer_username  = module.openstack.sudoer_username
+}
+
+output "hostnames" {
+  value = module.dns.hostnames
 }
