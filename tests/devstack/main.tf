@@ -23,7 +23,7 @@ module "openstack" {
     scratch_size = 5
   }
 
-  public_keys = [file("~/.ssh/id_rsa.pub")]
+  public_keys = [file("id_rsa.pub")]
 
   # Shared password, randomly chosen if blank
   guest_passwd = ""
