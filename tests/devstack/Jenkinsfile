@@ -2,11 +2,7 @@ node {
     checkout scm 
 }
 pipeline {
-    agent {
-        dockerfile {
-            dir 'tests/devstack/'
-        }
-    }
+    agent any
     environment {
         OS_PROJECT_DOMAIN_ID="default"
         OS_REGION_NAME="RegionOne"
@@ -21,17 +17,36 @@ pipeline {
         CLOUDFLARE_API_TOKEN = credentials('CLOUDFLARE_API_TOKEN')
         CLOUDFLARE_ZONE_API_TOKEN = credentials('CLOUDFLARE_API_TOKEN')
         CLOUDFLARE_DNS_API_TOKEN = credentials('CLOUDFLARE_API_TOKEN')
-        HOME = '.'
     }
     stages {
-        stage('Example stage 1') {
+        stage('Setup') {
             steps {
-                checkout scm
                 sh 'env'
+                dir("tests/devstack/") {
+                    sh 'bash setup.sh'
+                }
+            }
+        }
+        stage('Deploy') {
+            steps {
+                dir("tests/devstack/") {
+                    sh 'bash deploy.sh'
+                }
+            }
+        }
+        stage('Test') {
+            steps {
                 dir("tests/devstack/") {
                     sh 'bash setup.sh'
                     sh 'bash deploy.sh'
                     sh 'bats test.sh'
+                    sh 'bash destroy.sh'
+                }
+            }
+        }
+        stage('Destroy') {
+            steps {
+                dir("tests/devstack/") {
                     sh 'bash destroy.sh'
                 }
             }
