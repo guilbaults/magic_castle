@@ -1,3 +1,6 @@
+node {
+    checkout scm 
+}
 pipeline {
     agent {
         dockerfile {
@@ -18,12 +21,18 @@ pipeline {
         CLOUDFLARE_API_TOKEN = credentials('CLOUDFLARE_API_TOKEN')
         CLOUDFLARE_ZONE_API_TOKEN = credentials('CLOUDFLARE_API_TOKEN')
         CLOUDFLARE_DNS_API_TOKEN = credentials('CLOUDFLARE_API_TOKEN')
+        HOME = '.'
     }
     stages {
         stage('Example stage 1') {
             steps {
-                //checkout([$class: 'GitSCM', branches: [[name: 'tests']], browser: [$class: 'GithubWeb', repoUrl: 'https://github.com/guilbaults/magic_castle'], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[url: 'https://github.com/guilbaults/magic_castle.git']]])
-                sh 'bats tests/devstack/test.sh'
+                sh 'env'
+                dir("tests/devstack/") {
+                    sh 'bash setup.sh'
+                    sh 'bash deploy.sh'
+                    sh 'bats test.sh'
+                    sh 'bash destroy.sh'
+                }
             }
         }
     }
