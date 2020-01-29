@@ -26,6 +26,7 @@ pipeline {
     stages {
         stage('Example stage 1') {
             steps {
+                checkout scm
                 sh 'env'
                 dir("tests/devstack/") {
                     sh 'bash setup.sh'
