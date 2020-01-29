@@ -1,0 +1,30 @@
+pipeline {
+    agent {
+        dockerfile {
+            dir 'tests/devstack/'
+        }
+    }
+    environment {
+        OS_PROJECT_DOMAIN_ID="default"
+        OS_REGION_NAME="RegionOne"
+        OS_USER_DOMAIN_NAME="Default"
+        OS_PROJECT_NAME="demo"
+        OS_IDENTITY_API_VERSION="3"
+        OS_AUTH_URL="http://132.219.137.169/identity"
+        OS_USERNAME="demo"
+        OS_INTERFACE="public"
+        OS_PASSWORD = credentials('OS_PASSWORD')
+        CLOUDFLARE_EMAIL="simon.guilbault@calculquebec.ca"
+        CLOUDFLARE_API_TOKEN = credentials('CLOUDFLARE_API_TOKEN')
+        CLOUDFLARE_ZONE_API_TOKEN = credentials('CLOUDFLARE_API_TOKEN')
+        CLOUDFLARE_DNS_API_TOKEN = credentials('CLOUDFLARE_API_TOKEN')
+    }
+    stages {
+        stage('Example stage 1') {
+            steps {
+                //checkout([$class: 'GitSCM', branches: [[name: 'tests']], browser: [$class: 'GithubWeb', repoUrl: 'https://github.com/guilbaults/magic_castle'], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[url: 'https://github.com/guilbaults/magic_castle.git']]])
+                sh 'bats tests/devstack/test.sh'
+            }
+        }
+    }
+}
