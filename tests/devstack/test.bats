@@ -3,19 +3,34 @@ LOGIN_IPADDR=$(jq -j '.outputs.public_ip.value[0]' terraform.tfstate)
 GUEST_PASSWD=$(jq -j '.outputs.guest_passwd.value' terraform.tfstate)
 
 ssh_user () {
-  echo -n "$(sshpass -p "${GUEST_PASSWD}" ssh -o StrictHostKeyChecking=no user01@${LOGIN_IPADDR} "$1" )"
+  echo -n "$(sshpass -p "${GUEST_PASSWD}" ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null user01@${LOGIN_IPADDR} "$1" )"
 }
 
 ssh_centos_login1 () {
-  echo -n "$(ssh -o StrictHostKeyChecking=no centos@${LOGIN_IPADDR} "$1" )"
+  echo -n "$(ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null centos@${LOGIN_IPADDR} "$1" )"
 }
 
 ssh_centos_mgmt1 () {
-  echo -n "$(ssh -A -o StrictHostKeyChecking=no centos@${LOGIN_IPADDR} "ssh centos@mgmt1 $1" )"
+  echo -n "$(ssh -A -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null centos@${LOGIN_IPADDR} "ssh centos@mgmt1 $1" )"
 }
 
 ssh_centos_node1 () {
-  echo -n "$(ssh -A -o StrictHostKeyChecking=no centos@${LOGIN_IPADDR} "ssh centos@node1 $1" )"
+  echo -n "$(ssh -A -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null centos@${LOGIN_IPADDR} "ssh centos@node1 $1" )"
+}
+
+@test "login1 is up" {
+  result=$(ssh_centos_login1 "hostname")
+  [ "$result" == "login1.int.foufounes.calculquebec.cloud" ]
+}
+
+@test "mgmt1 is up" {
+  result=$(ssh_centos_mgmt1 "hostname")
+  [ "$result" == "mgmt1.int.foufounes.calculquebec.cloud" ]
+}
+
+@test "node1 is up" {
+  result=$(ssh_centos_node1 "hostname")
+  [ "$result" == "node1.int.foufounes.calculquebec.cloud" ]
 }
 
 @test "checking puppet failed action on login1" {
@@ -43,13 +58,8 @@ ssh_centos_node1 () {
   [ "$result" == "State=IDLE" ]
 }
 
-@test "mgmt1 is up" {
-  result=$(ssh_centos_mgmt1 "hostname")
-  [ "$result" == "mgmt1.int.foufounes.calculquebec.cloud" ]
-}
-
 @test "jupyter is up" {
-  result=$(curl https://jupyter.foufounes.calculquebec.cloud)
+  result=$(curl --cacert pebble.minica.pem https://jupyter.foufounes.calculquebec.cloud)
   [ "$?" -eq 0 ]
 }
 
