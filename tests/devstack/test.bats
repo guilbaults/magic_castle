@@ -1,22 +1,7 @@
 #!/usr/bin/env bats
-LOGIN_IPADDR=$(jq -j '.outputs.public_ip.value[0]' terraform.tfstate)
-GUEST_PASSWD=$(jq -j '.outputs.guest_passwd.value' terraform.tfstate)
-
-ssh_user () {
-  echo -n "$(sshpass -p "${GUEST_PASSWD}" ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null user01@${LOGIN_IPADDR} "$1" )"
-}
-
-ssh_centos_login1 () {
-  echo -n "$(ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null centos@${LOGIN_IPADDR} "$1" )"
-}
-
-ssh_centos_mgmt1 () {
-  echo -n "$(ssh -A -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null centos@${LOGIN_IPADDR} "ssh centos@mgmt1 $1" )"
-}
-
-ssh_centos_node1 () {
-  echo -n "$(ssh -A -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null centos@${LOGIN_IPADDR} "ssh centos@node1 $1" )"
-}
+export LOGIN_IPADDR=$(jq -j '.outputs.public_ip.value[0]' terraform.tfstate)
+export GUEST_PASSWD=$(jq -j '.outputs.guest_passwd.value' terraform.tfstate)
+source ./common.sh
 
 @test "login1 is up" {
   result=$(ssh_centos_login1 "hostname")
@@ -59,7 +44,7 @@ ssh_centos_node1 () {
 }
 
 @test "jupyter is up" {
-  result=$(curl --cacert pebble.minica.pem https://jupyter.foufounes.calculquebec.cloud)
+  result=$(curl --cacert chain.pem https://jupyter.foufounes.calculquebec.cloud)
   [ "$?" -eq 0 ]
 }
 

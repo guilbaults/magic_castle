@@ -1,12 +1,18 @@
 #!/bin/bash
+export LOGIN_IPADDR=$(jq -j '.outputs.public_ip.value[0]' terraform.tfstate)
+export GUEST_PASSWD=$(jq -j '.outputs.guest_passwd.value' terraform.tfstate)
+source ./common.sh
+
 terraform plan
 
-# grab the fake certs from pebble
-curl -s https://raw.githubusercontent.com/letsencrypt/pebble/master/test/certs/pebble.minica.pem > pebble.minica.pem
-curl -s --cacert pebble.minica.pem https://localhost:15000/roots/0 >> pebble.minica.pem
-curl -s --cacert pebble.minica.pem https://localhost:15000/intermediates/0 >> pebble.minica.pem
-
-# patch the url for ACME
-sed -i 's+https://acme-v02.api.letsencrypt.org/directory+https://localhost:14000/dir+g' .terraform/modules/dns/dns/acme/main.tf
-
 SSL_CERT_FILE=pebble.minica.pem terraform apply -auto-approve
+
+# wait until the VM are ready
+for vm in mgmt1 login1 node1;
+do
+    echo checking if $vm is waiting at the prompt
+    retry -t 50 -s 30 "./env/bin/openstack console log show $vm | grep '$vm login:' > /dev/null"
+    echo vm $vm is done booting, checking if puppet ran once
+    retry -t 50 ssh_centos_$vm "sudo test -f /opt/puppetlabs/puppet/cache/state/last_run_summary.yaml"
+done
+
