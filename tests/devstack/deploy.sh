@@ -5,6 +5,9 @@ source ./common.sh
 
 terraform plan
 
+eval $(ssh-agent)
+ssh-add id_rsa
+
 SSL_CERT_FILE=pebble.minica.pem terraform apply -auto-approve
 
 # wait until the VM are ready
