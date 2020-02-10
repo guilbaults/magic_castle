@@ -1,2 +1,2 @@
 #!/bin/bash
-terraform destroy -auto-approve
+SSL_CERT_FILE=pebble.minica.pem terraform destroy -auto-approve
