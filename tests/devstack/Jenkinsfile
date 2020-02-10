@@ -49,10 +49,8 @@ pipeline {
     }
     post {
         always {
-            always {
-                dir("tests/devstack/") {
-                    sh 'bash destroy.sh'
-                }
+            dir("tests/devstack/") {
+                sh 'bash destroy.sh'
             }
         }
     }
