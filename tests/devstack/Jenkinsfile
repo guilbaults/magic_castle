@@ -20,32 +20,28 @@ pipeline {
     }
     stages {
         stage('Setup') {
-            timeout(time: 5, unit: 'MINUTES') {
-                steps {
-                    sh 'env'
-                    sh 'git clean -fdx'
-                    dir("tests/devstack/") {
-                        sh 'bash setup.sh'
-                    }
+            steps {
+                sh 'env'
+                sh 'git clean -fdx'
+                dir("tests/devstack/") {
+                    sh 'bash setup.sh'
                 }
             }
         }
         stage('Deploy') {
-            timeout(time: 20, unit: 'MINUTES') {
-                steps {
-                    dir("tests/devstack/") {
+            steps {
+                dir("tests/devstack/") {
+                    timeout(time: 20, unit: 'MINUTES') {
                         sh 'bash deploy.sh'
                     }
                 }
             }
         }
         stage('Test') {
-            timeout(time: 5, unit: 'MINUTES') {
-                steps {
-                    dir("tests/devstack/") {
-                        retry(3) {
-                            sh 'bats test.bats'
-                        }
+            steps {
+                dir("tests/devstack/") {
+                    retry(3) {
+                        sh 'bats test.bats'
                     }
                 }
             }
