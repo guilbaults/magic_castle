@@ -1,5 +1,7 @@
 #!/bin/bash
 ssh-keygen -f id_rsa -t rsa -N ''
+eval $(ssh-agent)
+ssh-add id_rsa
 terraform init
 
 # patch the url for ACME

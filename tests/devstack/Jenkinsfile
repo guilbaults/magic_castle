@@ -20,33 +20,40 @@ pipeline {
     }
     stages {
         stage('Setup') {
-            steps {
-                sh 'env'
-                sh 'git clean -fdx'
-                dir("tests/devstack/") {
-                    sh 'bash setup.sh'
+            timeout(time: 5, unit: 'MINUTES') {
+                steps {
+                    sh 'env'
+                    sh 'git clean -fdx'
+                    dir("tests/devstack/") {
+                        sh 'bash setup.sh'
+                    }
                 }
             }
         }
         stage('Deploy') {
-            steps {
-                dir("tests/devstack/") {
-                    sh 'bash deploy.sh'
+            timeout(time: 20, unit: 'MINUTES') {
+                steps {
+                    dir("tests/devstack/") {
+                        sh 'bash deploy.sh'
+                    }
                 }
             }
         }
         stage('Test') {
-            steps {
-                dir("tests/devstack/") {
-                    sh 'bash setup.sh'
-                    sh 'bash deploy.sh'
-                    sh 'bats test.sh'
-                    sh 'bash destroy.sh'
+            timeout(time: 5, unit: 'MINUTES') {
+                steps {
+                    dir("tests/devstack/") {
+                        retry(3) {
+                            sh 'bats test.bats'
+                        }
+                    }
                 }
             }
         }
-        stage('Destroy') {
-            steps {
+    }
+    post {
+        always {
+            always {
                 dir("tests/devstack/") {
                     sh 'bash destroy.sh'
                 }
