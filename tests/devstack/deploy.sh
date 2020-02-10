@@ -8,7 +8,7 @@ terraform plan
 SSL_CERT_FILE=pebble.minica.pem terraform apply -auto-approve
 
 # wait until the VM are ready
-for vm in mgmt1 login1 node1;
+for vm in login1 mgmt1 node1;
 do
     echo checking if $vm is waiting at the prompt
     retry -t 50 -s 30 "./env/bin/openstack console log show $vm | grep '$vm login:' > /dev/null"

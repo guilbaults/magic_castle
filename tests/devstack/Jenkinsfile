@@ -22,6 +22,7 @@ pipeline {
         stage('Setup') {
             steps {
                 sh 'env'
+                sh 'git clean -fdx'
                 dir("tests/devstack/") {
                     sh 'bash setup.sh'
                 }
