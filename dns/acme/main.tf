@@ -48,9 +48,10 @@ resource "null_resource" "deploy_certs" {
   count = length(var.login_ips)
 
   connection {
-    type = "ssh"
-    user = var.sudoer_username
-    host = element(var.login_ips, count.index)
+    type    = "ssh"
+    user    = var.sudoer_username
+    host    = element(var.login_ips, count.index)
+    timeout = 10m
   }
 
   provisioner "file" {
