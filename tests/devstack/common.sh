@@ -1,4 +1,7 @@
 #!/bin/bash
+export LOGIN_IPADDR=$(jq -j '.outputs.public_ip.value[0]' terraform.tfstate)
+export GUEST_PASSWD=$(jq -j '.outputs.guest_passwd.value' terraform.tfstate)
+
 function ssh_user {
   echo -n "$(sshpass -p "${GUEST_PASSWD}" ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null user01@${LOGIN_IPADDR} "$1" )"
 }
