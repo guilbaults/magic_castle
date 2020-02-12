@@ -14,9 +14,9 @@ SSL_CERT_FILE=pebble.minica.pem terraform apply -auto-approve
 for vm in login1 mgmt1 node1;
 do
     echo checking if $vm is waiting at the prompt
-    retry -t 50 -s 30 "./env/bin/openstack console log show $vm | grep '$vm login:' > /dev/null"
+    retry -t 50 -s 30 "./env/bin/openstack console log show $vm | grep 'Restarting system' > /dev/null"
     echo vm $vm is done booting, sleep for 1 min and then check if puppet ran once
-    sleep 60
+    sleep 30
     retry -t 50 ssh_centos_$vm "sudo test -f /opt/puppetlabs/puppet/cache/state/last_run_summary.yaml"
 done
 
