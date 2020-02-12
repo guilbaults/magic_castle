@@ -15,7 +15,8 @@ for vm in login1 mgmt1 node1;
 do
     echo checking if $vm is waiting at the prompt
     retry -t 50 -s 30 "./env/bin/openstack console log show $vm | grep '$vm login:' > /dev/null"
-    echo vm $vm is done booting, checking if puppet ran once
+    echo vm $vm is done booting, sleep for 1 min and then check if puppet ran once
+    sleep 60
     retry -t 50 ssh_centos_$vm "sudo test -f /opt/puppetlabs/puppet/cache/state/last_run_summary.yaml"
 done
 
