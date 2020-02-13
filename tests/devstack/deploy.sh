@@ -16,6 +16,7 @@ do
     echo checking if $vm is waiting at the prompt
     retry -t 50 -s 30 "./env/bin/openstack console log show $vm | grep 'Cloud-init' | grep 'finished at' > /dev/null"
     echo vm $vm is done booting
-    retry -t 50 ssh_centos_$vm "sudo test -f /opt/puppetlabs/puppet/cache/state/last_run_summary.yaml"
+    retry -t 50 -s 30 "ssh_centos_$vm sudo cat /opt/puppetlabs/puppet/cache/state/last_run_summary.yaml"
+    echo puppet run complete on $vm
 done
 
