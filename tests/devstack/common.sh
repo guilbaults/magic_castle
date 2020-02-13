@@ -7,6 +7,7 @@ function ssh_user {
 }
 
 function ssh_centos_login1 {
+  echo -n "LOGIN_IPADDR=${LOGIN_IPADDR}"
   echo -n "$(ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null centos@${LOGIN_IPADDR} "$1" )"
 }
 
